@@ -1,0 +1,31 @@
+/*
+Navicat MySQL Data Transfer
+
+Source Server         : localhost
+Source Server Version : 50529
+Source Host           : localhost:3306
+Source Database       : snowshoe
+
+Target Server Type    : MYSQL
+Target Server Version : 50529
+File Encoding         : 65001
+
+Date: 2013-03-26 19:25:42
+*/
+
+SET FOREIGN_KEY_CHECKS=0;
+-- ----------------------------
+-- Table structure for `Notification`
+-- ----------------------------
+DROP TABLE IF EXISTS `MLCNotification`;
+CREATE TABLE `MLCNotification` (
+  `idNotification` int(11) NOT NULL AUTO_INCREMENT,
+  `idUser` int(11) DEFAULT NULL,
+  `creDate` datetime DEFAULT NULL,
+  `className` varchar(64) DEFAULT NULL,
+  `data` longtext,
+  `viewed` int(1) DEFAULT '0',
+  PRIMARY KEY (`idNotification`),
+  KEY `FK_Notification_idUser` (`idUser`),
+  CONSTRAINT `FK_Notification_idUser` FOREIGN KEY (`idUser`) REFERENCES `AuthUser` (`idUser`) ON DELETE SET NULL ON UPDATE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=160 DEFAULT CHARSET=latin1;
