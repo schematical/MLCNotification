@@ -46,16 +46,20 @@ abstract class MLCNotificationObjectBase{
 		return $arrData;
 	}
 	public function Send($objUser){
+        error_log("Note Send Hit");
 		$arrData = $this->GetData();
 		$this->objNoteDataLayer->IdUser = $objUser->IdUser;
 		$this->objNoteDataLayer->Data = json_encode($arrData);
 		$this->objNoteDataLayer->Save();
 		MLCNotificationDriver::$arrCommMethod['email']->Send($objUser, $this);
 		//Find send methods
+        error_log("Email Sent");
 		foreach(MLCNotificationDriver::$arrCommMethod as $strKey => $objCommMethod){
             $strValue = $objUser->GetUserSetting($strKey);
 			if(!is_null($strValue)){
+                error_log("Sending - " . $strKey);
 				$objCommMethod->Send($objUser, $this);
+                error_log("Sent! - " . $strKey);
 			}
 		}
 		
