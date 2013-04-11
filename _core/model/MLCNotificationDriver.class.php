@@ -2,23 +2,28 @@
 abstract class MLCNotificationDriver{
 	public static $arrCommMethod = array();
 	public static function Init(){
-		self::$arrCommMethod['email'] = new MLCEmailCommMethod();
+		self::$arrCommMethod['email'] = new MLCPostmarkCommMethod();
 		self::$arrCommMethod['ua_apid'] = new MLCUACommMethod();
 	}
 	public static function Send($mixData, $mixUser = null){
 		$objUser = null;
+
 		if(is_object($mixUser)){
+            //die("CLass:" . get_class($mixUser));
 			switch(get_class($mixUser)){
 				case('User'):
+                case('AuthUser'):
 					$objUser = $mixUser;
 				break;
 				case('Account'):
-					$arrUsers = $mixUser->GetUserAsIdArray();
+                case('AuthAccount'):
+					$arrUsers = AuthUser::LoadArrayByField('idAccount', $mixUser->IdAccount);
 					self::Send($mixData, $arrUsers);
 					return;
 				break;
 			}
 		}elseif(is_array($mixUser)){
+
 			foreach($mixUser as $intIndex => $mixUserData){
 				self::Send($mixData, $mixUserData);
 			}

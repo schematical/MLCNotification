@@ -1,11 +1,12 @@
 <?php
-abstract class MLCNotificationBase{
+abstract class MLCNotificationObjectBase{
 	protected $objNoteDataLayer = null;
 	protected $strSubject = null;
 	protected $strBody = null;
 	protected $strEmailTemplate = null;
 	
 	public function __construct($objNotification = null){
+
 		if(!is_null($objNotification)){
 			if($objNotification->ClassName != get_class($this)){
 				throw new Exception("This is not the correct class for this notification");
@@ -13,10 +14,12 @@ abstract class MLCNotificationBase{
 			$this->objNoteDataLayer = $objNotification;
 			$this->ParseData($this->objNoteDataLayer->Data);
 		}else{
-			$this->objNoteDataLayer = new Notification();
-			$this->objNoteDataLayer->CreDate = QDateTime::Now();
+
+			$this->objNoteDataLayer = new MLCNotification();
+			$this->objNoteDataLayer->CreDate = MLCDateTime::Now();
 			$this->objNoteDataLayer->ClassName = get_class($this);
 		}
+
 	}
 	public function GetNoteDataLayer(){
 		//Add data layer
@@ -47,15 +50,23 @@ abstract class MLCNotificationBase{
 		$this->objNoteDataLayer->IdUser = $objUser->IdUser;
 		$this->objNoteDataLayer->Data = json_encode($arrData);
 		$this->objNoteDataLayer->Save();
-		MLCNotificationDriver::$arrCommMethod['email']->Send($this, $objUser);
+		MLCNotificationDriver::$arrCommMethod['email']->Send($objUser, $this);
 		//Find send methods
 		foreach(MLCNotificationDriver::$arrCommMethod as $strKey => $objCommMethod){
-			if(is_null($objUser->GetUserSetting($strKey))){
+            $strValue = $objUser->GetUserSetting($strKey);
+			if(!is_null($strValue)){
 				$objCommMethod->Send($objUser, $this);
 			}
 		}
 		
 	}
+    public function __toArray(){
+        $arrData = $this->GetData();
+        return $arrData;
+    }
+    public function __toJson(){
+        return json_encode($this->__toArray());
+    }
 	public function __get($strName){
 		switch($strName){
 			case('Subject'):
@@ -65,7 +76,7 @@ abstract class MLCNotificationBase{
 			case('EmailTemplate'):
 				return $this->strEmailTemplate;
 			default:
-				throw new MLCMissingPropertyException($strName, $this);
+				throw new MLCMissingPropertyException($this, $strName);
 		}
 	}
 	public function __set($strName, $mixValue){
@@ -77,7 +88,7 @@ abstract class MLCNotificationBase{
 			case('EmailTemplate'):
 				return $this->strEmailTemplate = $mixValue;
 			default:
-				throw new MLCMissingPropertyException($strName, $this);
+				throw new MLCMissingPropertyException($this, $strName);
 		}
 	}
 }
