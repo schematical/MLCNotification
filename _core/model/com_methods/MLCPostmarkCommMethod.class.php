@@ -9,11 +9,13 @@ class MLCPostmarkCommMethod{
 				$objMessage->messageHtml($objNotification->Body);
 				$objMessage->messagePlain($objNotification->Body);
 			}else{
+                $arrData = $objNotification->GetData();
+                $arrData['_NOTIFICATION'] = $objNotification;
+
+
 				$objMessage = MLCPostmarkDriver::ComposeFromTemplate(
                     $objNotification->EmailTemplate,
-					array(
-                        '_NOTIFICATION'=>$objNotification
-                    )
+                    $arrData
 				);
 			}
 			
